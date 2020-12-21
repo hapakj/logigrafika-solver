@@ -1,4 +1,5 @@
 #include "puzzle.h"
+#include "puzzle_solver.h"
 
 #include <filesystem>
 #include <iostream>
@@ -33,9 +34,12 @@ int main(int argc, char** argv)
         if (!puzzle.Validate(issues))
         {
             std::cout << "Puzzle invalid: " << std::endl << issues << std::endl;
+            continue;
         }
 
-        puzzle.Print(std::cout);
+        PuzzleSolver solver(puzzle);
+
+        solver.Solve();
 
         std::cout << std::endl;
     }

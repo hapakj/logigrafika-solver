@@ -20,13 +20,24 @@ int main(int argc, char** argv)
             continue;
         }
 
-        puzzle_pathes.push_back(dir_it.path() / "puzzle.in");
+        puzzle_pathes.push_back(dir_it.path());
     }
 
     for (const auto& path : puzzle_pathes)
     {
         std::cout << "Load puzzle: " << path.string() << std::endl;
-        Puzzle::LoadFromFile(path.string());
+
+        auto puzzle = Puzzle::LoadFromFile((path / "puzzle.in").string());
+
+        std::string issues;
+        if (!puzzle.Validate(issues))
+        {
+            std::cout << "Puzzle invalid: " << std::endl << issues << std::endl;
+        }
+
+        puzzle.Print(std::cout);
+
+        std::cout << std::endl;
     }
 
     return 0;

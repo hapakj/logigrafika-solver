@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 
 int main(int argc, char** argv)
@@ -39,7 +40,12 @@ int main(int argc, char** argv)
 
         PuzzleSolver solver(puzzle);
 
+        std::ofstream log(path / "log.txt");
+        solver.SetLog(log);
+
         solver.Solve();
+
+        log.close();
 
         std::cout << std::endl;
     }

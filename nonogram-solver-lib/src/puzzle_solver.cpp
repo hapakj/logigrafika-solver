@@ -28,8 +28,25 @@ bool PuzzleSolver::Solve()
 	for (;;)
 	{
 		std::cout << (iteration_count + 1) << ". iteration" << std::endl;
+		log() << (iteration_count + 1) << ". iteration" << std::endl;
 
-		apply_rule([&](auto values, auto gridview) { MarkerRule(values, gridview); });
+		{
+			log() << "Apply Marker rule" << std::endl;
+
+			apply_rule([&](auto values, auto gridview) { MarkerRule(values, gridview); });
+
+			m_puzzle.Print(log());
+			log() << std::endl << std::endl << std::flush;
+		}
+
+		{
+			log() << "Apply Zero Value rule" << std::endl;
+
+			apply_rule([&](auto values, auto gridview) { ZeroValueRule(values, gridview); });
+
+			m_puzzle.Print(log());
+			log() << std::endl << std::endl << std::flush;
+		}
 
 		if (Puzzle::IsGridEqual(m_puzzle, last_state))
 		{
@@ -37,13 +54,23 @@ bool PuzzleSolver::Solve()
 			break;
 		}
 
-		m_puzzle.Print(std::cout);
+		log() << std::endl << std::endl << std::flush;
 
 		last_state = m_puzzle;
 		iteration_count++;
 	}
 
-	std::cout << std::setprecision(2) << std::fixed << "Completion ratio: " << m_puzzle.GetCompletionRatio() * 100.0 << "%" << std::endl;
+	{
+		m_puzzle.Print(std::cout);
+		std::cout << std::setprecision(2) << std::fixed << "Completion ratio: " << m_puzzle.GetCompletionRatio() * 100.0 << "%" << std::endl;
+	}
+
+	{
+		log() << std::endl << std::endl << std::endl << "Final result:" << std::endl;
+
+		m_puzzle.Print(log());
+		log() << std::setprecision(2) << std::fixed << "Completion ratio: " << m_puzzle.GetCompletionRatio() * 100.0 << "%" << std::endl;
+	}
 
 	return true;
 }
@@ -206,6 +233,22 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 				section_view[j] = Puzzle::FieldState::Marked;
 			}
 		}
+	}
+}
+
+
+void PuzzleSolver::ZeroValueRule(const std::vector<int32_t>& values, Puzzle::GridView& grid_view)
+{
+	bool zero_value = (values.size() == 1) && (values[0] == 0);
+
+	if (!zero_value)
+	{
+		return;
+	}
+
+	for (size_t i = 0; i < grid_view.size(); i++)
+	{
+		grid_view[i] = Puzzle::FieldState::Empty;
 	}
 }
 

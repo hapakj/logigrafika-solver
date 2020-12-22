@@ -89,7 +89,7 @@ Puzzle Puzzle::LoadFromFile(const std::string& path)
 void Puzzle::Print(std::ostream &ostream)
 {
 #if WIN32
-    const std::string marked = { char(219), char(219), char(0) };
+    const std::string marked = { char(219), char(219) };
 #else
     const std::string marked = "##";
 #endif

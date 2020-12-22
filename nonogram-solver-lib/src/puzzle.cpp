@@ -88,16 +88,22 @@ Puzzle Puzzle::LoadFromFile(const std::string& path)
 
 void Puzzle::Print(std::ostream &ostream)
 {
+#if WIN32
     const std::string marked = { char(219), char(219), char(0) };
+#else
+    const std::string marked = "##";
+#endif
     const std::string unknown = "  ";
     const std::string empty = "..";
 
+    constexpr bool extended = false;
+
     const auto print_horintal_border = [&]()
     {
-        ostream << '+';
-        for (size_t i = 0; i < m_columns.size(); i++)
+        ostream << "+--";
+        for (size_t i = 0; i < m_columns.size() - 1; i++)
         {
-            ostream << "--";
+            ostream << (extended ? "---" : "--");
         }
         ostream << '+' << std::endl;
     };
@@ -122,17 +128,26 @@ void Puzzle::Print(std::ostream &ostream)
                 ostream << unknown;
                 break;
             };
+
+            ostream << (extended ? "|" : "");
         }
 
-        ostream << "|" << std::endl;
+        ostream << (extended ? "" : "|") << std::endl;
     };
 
     print_horintal_border();
     for (const auto& row : m_grid)
     {
         print_row(row);
+        if (extended)
+        {
+            print_horintal_border();
+        }
     }
-    print_horintal_border();
+    if (!extended)
+    {
+        print_horintal_border();
+    }
 }
 
 

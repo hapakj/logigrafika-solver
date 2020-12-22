@@ -41,6 +41,18 @@ public:
 			}
 		}
 
+		size_t size() const
+		{
+			if (m_type == ViewType::Row)
+			{
+				return m_puzzle->m_columns.size();
+			}
+			else
+			{
+				return m_puzzle->m_rows.size();
+			}
+		}
+
 	private:
 		Puzzle* m_puzzle{ nullptr };
 		ViewType m_type;

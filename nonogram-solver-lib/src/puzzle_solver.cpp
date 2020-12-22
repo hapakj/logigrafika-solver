@@ -90,7 +90,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 
 		for (size_t id = 0; id < grid_view.size(); id++)
 		{
-			if ((grid_view[id] != Puzzle::FieldState::Empty) && !section)
+			if ((grid_view.at(id) != Puzzle::FieldState::Empty) && !section)
 			{
 				section.emplace();
 				section->begin = id;
@@ -98,7 +98,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 
 			const size_t next_id = id + 1;
 
-			if (section && ((next_id == grid_view.size()) || (grid_view[next_id] == Puzzle::FieldState::Empty))) 
+			if (section && ((next_id == grid_view.size()) || (grid_view.at(next_id) == Puzzle::FieldState::Empty))) 
 			{
 				section->end = next_id;
 				section_ranges.push_back(*section);
@@ -123,9 +123,14 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 				return m_section_range.end - m_section_range.begin;
 			}
 
-			auto& operator[](size_t id)
+			auto at(size_t id)
 			{
-				return m_grid_view[m_section_range.begin + id];
+				return m_grid_view.at(m_section_range.begin + id);
+			}
+
+			void set(size_t id, Puzzle::FieldState state)
+			{
+				m_grid_view.set(m_section_range.begin + id, state);
 			}
 
 		private:
@@ -230,7 +235,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 
 			for (size_t j = left_begin; j < right_end; j++)
 			{
-				section_view[j] = Puzzle::FieldState::Marked;
+				section_view.set(j, Puzzle::FieldState::Marked);
 			}
 		}
 	}
@@ -248,7 +253,7 @@ void PuzzleSolver::ZeroValueRule(const std::vector<int32_t>& values, Puzzle::Gri
 
 	for (size_t i = 0; i < grid_view.size(); i++)
 	{
-		grid_view[i] = Puzzle::FieldState::Empty;
+		grid_view.set(i, Puzzle::FieldState::Empty);
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 class Puzzle
 {
@@ -29,16 +30,22 @@ public:
 		{
 		}
 
-		FieldState& operator[](size_t id)
+		FieldState at(size_t id)
 		{
-			if (m_type == ViewType::Row)
+			return (*this)[id];
+		}
+
+		void set(size_t id, FieldState state)
+		{
+			auto prev_value = (*this)[id];
+
+			bool ok = (prev_value == FieldState::Unknown) || (prev_value == state);
+			if (!ok)
 			{
-				return m_puzzle->m_grid[m_id][id];
+				throw std::runtime_error("Change field state");
 			}
-			else
-			{
-				return m_puzzle->m_grid[id][m_id];
-			}
+
+			(*this)[id] = state;
 		}
 
 		size_t size() const
@@ -54,6 +61,19 @@ public:
 		}
 
 	private:
+
+		FieldState& operator[](size_t id)
+		{
+			if (m_type == ViewType::Row)
+			{
+				return m_puzzle->m_grid[m_id][id];
+			}
+			else
+			{
+				return m_puzzle->m_grid[id][m_id];
+			}
+		}
+
 		Puzzle* m_puzzle{ nullptr };
 		ViewType m_type;
 		size_t m_id;

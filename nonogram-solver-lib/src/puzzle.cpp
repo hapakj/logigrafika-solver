@@ -191,3 +191,51 @@ bool Puzzle::Validate(std::string& issues)
     return valid;
 }
 
+
+bool Puzzle::IsGridEqual(const Puzzle& p1, const Puzzle& p2)
+{
+    if (p1.m_grid.size() != p2.m_grid.size())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < p1.m_grid.size(); i++)
+    {
+        auto r1 = p1.m_grid[i];
+        auto r2 = p2.m_grid[i];
+
+        if (r1.size() != r2.size())
+        {
+            return false;
+        }
+
+        for (size_t j = 0; j < r1.size(); j++)
+        {
+            if (r1[j] != r2[j])
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+double Puzzle::GetCompletionRatio() const
+{
+    size_t filled_field_count = 0;
+    for (const auto& r : m_grid)
+    {
+        for (const auto& f : r)
+        {
+            if (f != FieldState::Unknown)
+            {
+                filled_field_count++;
+            }
+        }
+    }
+
+    return double(filled_field_count) / (double(m_rows.size()) * double(m_columns.size()));
+}
+

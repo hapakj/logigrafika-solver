@@ -63,6 +63,7 @@ public:
 
 	bool Validate(std::string& issues);
 	void Print(std::ostream &ostream);
+	double GetCompletionRatio() const;
 
 	size_t GetRowCount() const
 	{
@@ -93,6 +94,8 @@ public:
 	{
 		return GridView(this, ViewType::Column, id);
 	}
+
+	static bool IsGridEqual(const Puzzle& p1, const Puzzle& p2);
 
 private:
 	std::vector<std::vector<int32_t>> m_rows;

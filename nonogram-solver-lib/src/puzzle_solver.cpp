@@ -3,6 +3,7 @@
 #include <iostream>
 #include <functional>
 #include <optional>
+#include <iomanip>
 
 
 bool PuzzleSolver::Solve()
@@ -20,9 +21,29 @@ bool PuzzleSolver::Solve()
 		}
 	};
 
-	apply_rule([&](auto values, auto gridview) { MarkerRule(values, gridview); });
+	auto last_state = m_puzzle;
 
-	m_puzzle.Print(std::cout);
+	uint32_t iteration_count = 0;
+
+	for (;;)
+	{
+		std::cout << (iteration_count + 1) << ". iteration" << std::endl;
+
+		apply_rule([&](auto values, auto gridview) { MarkerRule(values, gridview); });
+
+		if (Puzzle::IsGridEqual(m_puzzle, last_state))
+		{
+			std::cout << "No change" << std::endl;
+			break;
+		}
+
+		m_puzzle.Print(std::cout);
+
+		last_state = m_puzzle;
+		iteration_count++;
+	}
+
+	std::cout << std::setprecision(2) << std::fixed << "Completion ratio: " << m_puzzle.GetCompletionRatio() * 100.0 << "%" << std::endl;
 
 	return true;
 }

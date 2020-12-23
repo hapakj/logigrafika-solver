@@ -12,23 +12,25 @@ bool PuzzleSolver::Solve()
 	{
 		for (size_t i = 0; i < m_puzzle.GetRowCount(); i++)
 		{
+			m_processed_row_id = i;
 			rule(m_puzzle.GetRowValues(i), m_puzzle.GetRowView(i));
 		}
+		m_processed_row_id.reset();
 
 		for (size_t i = 0; i < m_puzzle.GetColumnCount(); i++)
 		{
+			m_processed_column_id = i;
 			rule(m_puzzle.GetColumnValues(i), m_puzzle.GetColumnView(i));
 		}
+		m_processed_column_id.reset();
 	};
 
 	auto last_state = m_puzzle;
 
-	uint32_t iteration_count = 0;
-
 	for (;;)
 	{
-		std::cout << (iteration_count + 1) << ". iteration" << std::endl;
-		log() << (iteration_count + 1) << ". iteration" << std::endl;
+		std::cout << (m_iteration_count + 1) << ". iteration" << std::endl;
+		log() << (m_iteration_count + 1) << ". iteration" << std::endl;
 
 		{
 			log() << "Apply Marker rule" << std::endl;
@@ -48,6 +50,15 @@ bool PuzzleSolver::Solve()
 			log() << std::endl << std::endl << std::flush;
 		}
 
+		{
+			log() << "Apply Close Side rule" << std::endl;
+
+			apply_rule([&](auto values, auto gridview) { CloseSideRule(values, gridview); });
+
+			m_puzzle.Print(log());
+			log() << std::endl << std::endl << std::flush;
+		}
+
 		if (Puzzle::IsGridEqual(m_puzzle, last_state))
 		{
 			std::cout << "No change" << std::endl;
@@ -57,7 +68,7 @@ bool PuzzleSolver::Solve()
 		log() << std::endl << std::endl << std::flush;
 
 		last_state = m_puzzle;
-		iteration_count++;
+		m_iteration_count++;
 	}
 
 	{
@@ -179,6 +190,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 		{
 			size_t s = 0;
 			size_t i = 0;
+
 			for (; i < values.size(); i++)
 			{
 				s += values[i] + 1;
@@ -187,6 +199,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 					break;
 				}
 			}
+
 			start_value_id = i;
 		}
 
@@ -194,8 +207,9 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 		size_t end_value_id{ 0 };
 		{
 			size_t s = grid_view.size();
-			size_t i = values.size() - 1;
-			for (; i > 0; i--)
+			int32_t i = int32_t(values.size()) - 1;
+
+			for (; i >= 0; i--)
 			{
 				s -= values[i] + 1;
 				if (s < section_range.end)
@@ -203,6 +217,7 @@ void PuzzleSolver::MarkerRule(const std::vector<int32_t>& values, Puzzle::GridVi
 					break;
 				}
 			}
+
 			end_value_id = i + 1;
 		}
 
@@ -254,6 +269,65 @@ void PuzzleSolver::ZeroValueRule(const std::vector<int32_t>& values, Puzzle::Gri
 	for (size_t i = 0; i < grid_view.size(); i++)
 	{
 		grid_view.set(i, Puzzle::FieldState::Empty);
+	}
+}
+
+
+void PuzzleSolver::CloseSideRule(const std::vector<int32_t>& values, Puzzle::GridView& grid_view)
+{
+	size_t first_unknown_id = 0;
+	for (size_t i = 0; i < grid_view.size(); i++)
+	{
+		if (grid_view.at(i) == Puzzle::FieldState::Unknown)
+		{
+			first_unknown_id = i;
+			break;
+		}
+	}
+
+	if (first_unknown_id == grid_view.size())
+	{
+		return;
+	}
+
+	if (first_unknown_id == 0)
+	{
+		return;
+	}
+
+	if (grid_view.at(first_unknown_id - 1) != Puzzle::FieldState::Marked)
+	{
+		return;
+	}
+
+	size_t value_id = 0;
+	for (size_t i = 0; i < first_unknown_id; i++)
+	{
+		if ((grid_view.at(i) == Puzzle::FieldState::Marked) && (grid_view.at(i + 1) == Puzzle::FieldState::Empty))
+		{
+			value_id++;
+		}
+	}
+
+	size_t side_begin = 0;
+	for (size_t i = first_unknown_id; i > 1; i--)
+	{
+		if (grid_view.at(i - 1) == Puzzle::FieldState::Empty)
+		{
+			side_begin = i;
+			break;
+		}
+	}
+
+	for (int32_t i = 0; i < values[value_id]; i++)
+	{
+		grid_view.set(side_begin + i, Puzzle::FieldState::Marked);
+	}
+
+	auto empty_id = side_begin + values[value_id];
+	if (empty_id < grid_view.size())
+	{
+		grid_view.set(empty_id, Puzzle::FieldState::Empty);
 	}
 }
 

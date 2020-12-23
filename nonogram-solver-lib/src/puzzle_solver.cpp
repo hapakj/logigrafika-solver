@@ -56,6 +56,9 @@ bool PuzzleSolver::Solve()
 		apply_rule("Close Side", Puzzle::ViewType::Column, false, [&](auto values, auto gridview) { CloseSideRule(values, gridview); });
 		apply_rule("Close Side", Puzzle::ViewType::Column, true, [&](auto values, auto gridview) { CloseSideRule(values, gridview); });
 
+		apply_rule("Completed", Puzzle::ViewType::Row, false, [&](auto values, auto gridview) { CompletedRule(values, gridview); });
+		apply_rule("Completed", Puzzle::ViewType::Column, false, [&](auto values, auto gridview) { CompletedRule(values, gridview); });
+
 		if (Puzzle::IsGridEqual(m_puzzle, last_state))
 		{
 			std::cout << "No change" << std::endl;
@@ -315,6 +318,53 @@ void PuzzleSolver::CloseSideRule(const Puzzle::ValueView& values, Puzzle::GridVi
 	if (empty_id < grid_view.size())
 	{
 		grid_view.set(empty_id, Puzzle::FieldState::Empty);
+	}
+}
+
+
+void PuzzleSolver::CompletedRule(const Puzzle::ValueView& values, Puzzle::GridView& grid_view)
+{
+	std::vector<int32_t> section_sizes;
+
+	{
+		std::optional<int32_t> section_begin;
+
+		for (size_t id = 0; id < grid_view.size(); id++)
+		{
+			if ((grid_view.at(id) == Puzzle::FieldState::Marked) && !section_begin)
+			{
+				section_begin = int32_t(id);
+			}
+
+			const size_t next_id = id + 1;
+
+			if (section_begin && ((next_id == grid_view.size()) || (grid_view.at(next_id) != Puzzle::FieldState::Marked)))
+			{
+				section_sizes.push_back(int32_t(id) - *section_begin + 1);
+				section_begin.reset();
+			}
+		}
+	}
+
+	if (section_sizes.size() != values.size())
+	{
+		return;
+	}
+
+	for (size_t i = 0; i < section_sizes.size(); i++)
+	{
+		if (section_sizes[i] != values[i])
+		{
+			return;
+		}
+	}
+
+	for (size_t i = 0; i < grid_view.size(); i++)
+	{
+		if (grid_view.at(i) == Puzzle::FieldState::Unknown)
+		{
+			grid_view.set(i, Puzzle::FieldState::Empty);
+		}
 	}
 }
 

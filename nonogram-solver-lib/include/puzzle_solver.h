@@ -31,6 +31,7 @@ private:
 	void MarkerRule(const Puzzle::ValueView &values, Puzzle::GridView &grid_view);
 	void ZeroValueRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
 	void CloseSideRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
+	void CompletedRule(const Puzzle::ValueView& values, Puzzle::GridView& grid_view);
 
 	Puzzle m_puzzle;
 

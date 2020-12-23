@@ -23,10 +23,11 @@ public:
 	class GridView
 	{
 	public:
-		GridView(Puzzle* puzzle, ViewType type, size_t id)
+		GridView(Puzzle* puzzle, ViewType type, size_t id, bool reversed)
 			: m_puzzle(puzzle)
 			, m_type(type)
 			, m_id(id)
+			, m_reversed(reversed)
 		{
 		}
 
@@ -64,20 +65,85 @@ public:
 
 		FieldState& operator[](size_t id)
 		{
+			auto actual_id = m_reversed ? (size() - id - 1) : id;
+
 			if (m_type == ViewType::Row)
 			{
-				return m_puzzle->m_grid[m_id][id];
+				return m_puzzle->m_grid[m_id][actual_id];
 			}
 			else
 			{
-				return m_puzzle->m_grid[id][m_id];
+				return m_puzzle->m_grid[actual_id][m_id];
 			}
 		}
 
 		Puzzle* m_puzzle{ nullptr };
-		ViewType m_type;
-		size_t m_id;
+		ViewType m_type{ ViewType::Row };
+		size_t m_id{ 0 };
+		bool m_reversed{ false };
 	};
+
+
+	class ValueView
+	{
+	public:
+		ValueView(const Puzzle* puzzle, ViewType type, size_t id, bool reversed)
+			: m_puzzle(puzzle)
+			, m_type(type)
+			, m_id(id)
+			, m_reversed( reversed )
+		{
+		}
+
+		auto size() const
+		{
+			if (m_type == ViewType::Row)
+			{
+				return m_puzzle->m_rows[m_id].size();
+			}
+			else
+			{
+				return m_puzzle->m_columns[m_id].size();
+			}
+		}
+
+		auto operator[](size_t id) const
+		{
+			if (m_type == ViewType::Row)
+			{
+				const auto& row = m_puzzle->m_rows[m_id];
+
+				if (!m_reversed)
+				{
+					return row[id];
+				}
+				else
+				{
+					return *(row.crbegin() + id);
+				}
+			}
+			else
+			{
+				const auto& column = m_puzzle->m_columns[m_id];
+
+				if (!m_reversed)
+				{
+					return column[id];
+				}
+				else
+				{
+					return *(column.crbegin() + id);
+				}
+			}
+		}
+
+	private:
+		const Puzzle* m_puzzle{ nullptr };
+		ViewType m_type{ ViewType::Row };
+		size_t m_id{ 0 };
+		bool m_reversed{ false };
+	};
+
 
 	static Puzzle LoadFromFile(const std::string &path);
 
@@ -95,24 +161,24 @@ public:
 		return m_columns.size();
 	}
 
-	const std::vector<int32_t>& GetRowValues(size_t id) const
+	const ValueView GetRowValueView(size_t id, bool reversed) const
 	{
-		return m_rows[id];
+		return ValueView(this, ViewType::Row, id, reversed);
 	}
 
-	const std::vector<int32_t>& GetColumnValues(size_t id) const
+	const ValueView GetColumnValueView(size_t id, bool reversed) const
 	{
-		return m_columns[id];
+		return ValueView(this, ViewType::Column, id, reversed);
 	}
 
-	GridView GetRowView(size_t id)
+	GridView GetRowView(size_t id, bool reversed)
 	{
-		return GridView(this, ViewType::Row, id);
+		return GridView(this, ViewType::Row, id, reversed);
 	}
 
-	GridView GetColumnView(size_t id)
+	GridView GetColumnView(size_t id, bool reversed)
 	{
-		return GridView(this, ViewType::Column, id);
+		return GridView(this, ViewType::Column, id, reversed);
 	}
 
 	static bool IsGridEqual(const Puzzle& p1, const Puzzle& p2);

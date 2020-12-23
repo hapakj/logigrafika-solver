@@ -28,9 +28,9 @@ public:
 	}
 
 private:
-	void MarkerRule(const std::vector<int32_t> &values, Puzzle::GridView &grid_view);
-	void ZeroValueRule(const std::vector<int32_t>& values, Puzzle::GridView& grid_view);
-	void CloseSideRule(const std::vector<int32_t>& values, Puzzle::GridView& grid_view);
+	void MarkerRule(const Puzzle::ValueView &values, Puzzle::GridView &grid_view);
+	void ZeroValueRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
+	void CloseSideRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
 
 	Puzzle m_puzzle;
 

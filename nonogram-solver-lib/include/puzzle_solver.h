@@ -32,6 +32,7 @@ private:
 	void ZeroValueRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
 	void CloseSideRule(const Puzzle::ValueView &values, Puzzle::GridView& grid_view);
 	void CompletedRule(const Puzzle::ValueView& values, Puzzle::GridView& grid_view);
+	void FillSideRule(const Puzzle::ValueView& values, Puzzle::GridView& grid_view);
 
 	Puzzle m_puzzle;
 
@@ -39,8 +40,9 @@ private:
 
 	std::optional<size_t> m_processed_row_id, m_processed_column_id;
 	uint32_t m_iteration_count{ 0 };
+	bool m_reversed{ false };
 
-	bool IsProcessed(uint32_t iteration_count, std::optional<size_t> row_id, std::optional<size_t> column_id)
+	bool IsProcessed(uint32_t iteration_count, std::optional<size_t> row_id, std::optional<size_t> column_id, bool reversed)
 	{
 		iteration_count--;
 		if (row_id)
@@ -52,12 +54,12 @@ private:
 			(*column_id)--;
 		}
 
-		return (m_iteration_count == iteration_count) && (m_processed_row_id == row_id) && (m_processed_column_id == column_id);
+		return (m_iteration_count == iteration_count) && (m_processed_row_id == row_id) && (m_processed_column_id == column_id) && (m_reversed == reversed);
 	}
 
-	void BrakeAt(uint32_t iteration_count, std::optional<size_t> row_id, std::optional<size_t> column_id)
+	void BrakeAt(uint32_t iteration_count, std::optional<size_t> row_id, std::optional<size_t> column_id, bool reversed)
 	{
-		if (IsProcessed(iteration_count, row_id, column_id))
+		if (IsProcessed(iteration_count, row_id, column_id, reversed))
 		{
 			std::cout << "We should brake" << std::endl;
 		}

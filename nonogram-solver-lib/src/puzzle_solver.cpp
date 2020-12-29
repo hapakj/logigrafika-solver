@@ -10,6 +10,9 @@ bool PuzzleSolver::Solve()
 {
 	auto apply_rule = [&](const auto& rule_name, auto direction, bool reversed, auto&& rule)
 	{
+		m_reversed = reversed;
+		auto prev_state = m_puzzle;
+
 		auto direction_str = (direction == Puzzle::ViewType::Row) ? "horizontally" : "vertically";
 		auto reversed_str = reversed ? "reversed " : "";
 		log() << "Apply " << reversed_str << rule_name << " rule " << direction_str << std::endl;
@@ -34,8 +37,15 @@ bool PuzzleSolver::Solve()
 			m_processed_column_id.reset();
 		}
 
-		m_puzzle.Print(log());
-		log() << std::endl << std::endl << std::flush;
+		if (!Puzzle::IsGridEqual(m_puzzle, prev_state))
+		{
+			m_puzzle.Print(log());
+			log() << std::endl << std::endl << std::flush;
+		}
+		else
+		{
+			log() << "No change" << std::endl << std::endl << std::flush;
+		}
 	};
 
 	auto last_state = m_puzzle;
@@ -58,6 +68,11 @@ bool PuzzleSolver::Solve()
 
 		apply_rule("Completed", Puzzle::ViewType::Row, false, [&](auto values, auto gridview) { CompletedRule(values, gridview); });
 		apply_rule("Completed", Puzzle::ViewType::Column, false, [&](auto values, auto gridview) { CompletedRule(values, gridview); });
+
+		apply_rule("Fill Side", Puzzle::ViewType::Row, false, [&](auto values, auto gridview) { FillSideRule(values, gridview); });
+		apply_rule("Fill Side", Puzzle::ViewType::Row, true, [&](auto values, auto gridview) { FillSideRule(values, gridview); });
+		apply_rule("Fill Side", Puzzle::ViewType::Column, false, [&](auto values, auto gridview) { FillSideRule(values, gridview); });
+	    apply_rule("Fill Side", Puzzle::ViewType::Column, true, [&](auto values, auto gridview) { FillSideRule(values, gridview); });
 
 		if (Puzzle::IsGridEqual(m_puzzle, last_state))
 		{
@@ -365,6 +380,65 @@ void PuzzleSolver::CompletedRule(const Puzzle::ValueView& values, Puzzle::GridVi
 		{
 			grid_view.set(i, Puzzle::FieldState::Empty);
 		}
+	}
+}
+
+
+void PuzzleSolver::FillSideRule(const Puzzle::ValueView& values, Puzzle::GridView& grid_view)
+{
+	size_t first_marked_id{ 0 };
+	{
+		size_t i = 0;
+		for (; i < grid_view.size(); i++)
+		{
+			if ((grid_view.at(i) == Puzzle::FieldState::Unknown))
+			{
+				break;
+			}
+		}
+		i += 1;
+
+		for (; i < grid_view.size(); i++)
+		{
+			if (grid_view.at(i) == Puzzle::FieldState::Marked)
+			{
+				break;
+			}
+			if (grid_view.at(i) == Puzzle::FieldState::Empty)
+			{
+				return;
+			}
+		}
+
+		if (i >= grid_view.size())
+		{
+			return;
+		}
+
+		first_marked_id = i;
+	}
+
+	auto start_id = first_marked_id - 1;
+
+	while ((start_id > 0) && (grid_view.at(start_id - 1) != Puzzle::FieldState::Empty))
+	{
+		start_id--;
+	}
+
+	size_t value_id = 0;
+	for (size_t i = 0; i < first_marked_id; i++)
+	{
+		if ((grid_view.at(i) == Puzzle::FieldState::Marked) && (grid_view.at(i + 1) == Puzzle::FieldState::Empty))
+		{
+			value_id++;
+		}
+	}
+
+	auto end_id = start_id + values[value_id];
+
+	for (size_t i = first_marked_id; i < end_id; i++)
+	{
+		grid_view.set(i, Puzzle::FieldState::Marked);
 	}
 }
 

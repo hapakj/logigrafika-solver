@@ -190,3 +190,16 @@ private:
 	std::vector<std::vector<FieldState>> m_grid;
 };
 
+
+#define DEBUG_GRIDVIEW(VALUES, GRIDVIEW)             \
+	std::vector<int32_t> gridview_values;            \
+	std::vector<Puzzle::FieldState> gridview_states; \
+	for (size_t i = 0; i < VALUES.size(); i++)       \
+	{                                                \
+		gridview_values.push_back(VALUES[i]);        \
+	}                                                \
+	for (size_t i = 0; i < GRIDVIEW.size(); i++)     \
+	{                                                \
+		gridview_states.push_back(GRIDVIEW.at(i));   \
+	}
+

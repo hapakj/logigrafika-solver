@@ -8,12 +8,11 @@
 
 Puzzle Puzzle::LoadFromFile(const std::string& path)
 {
-	Puzzle puzzle;
+    Puzzle puzzle;
 
     std::ifstream puzzle_file(path);
 
-    auto get_non_empty_line = [](std::istream& stream, std::string& line)
-    {
+    auto get_non_empty_line = [](std::istream& stream, std::string& line) {
         for (;;)
         {
             if (!std::getline(stream, line))
@@ -48,8 +47,7 @@ Puzzle Puzzle::LoadFromFile(const std::string& path)
         puzzle.m_columns.resize(column_count);
     }
 
-    auto read_values = [&](std::vector<std::vector<int32_t>>& values)
-    {
+    auto read_values = [&](std::vector<std::vector<int32_t>>& values) {
         for (size_t i = 0; i < values.size(); i++)
         {
             auto& sub_values = values[i];
@@ -68,7 +66,6 @@ Puzzle Puzzle::LoadFromFile(const std::string& path)
             {
                 sub_values.push_back(value);
             }
-
         }
     };
 
@@ -82,11 +79,11 @@ Puzzle Puzzle::LoadFromFile(const std::string& path)
         std::fill(row.begin(), row.end(), FieldState::Unknown);
     }
 
-	return puzzle;
+    return puzzle;
 }
 
 
-void Puzzle::Print(std::ostream &ostream)
+void Puzzle::Print(std::ostream& ostream)
 {
 #if WIN32
     const std::string marked = { char(219), char(219) };
@@ -98,8 +95,7 @@ void Puzzle::Print(std::ostream &ostream)
 
     constexpr bool extended = false;
 
-    const auto print_horintal_border = [&]()
-    {
+    const auto print_horintal_border = [&]() {
         ostream << "+--";
         for (size_t i = 0; i < m_columns.size() - 1; i++)
         {
@@ -108,25 +104,24 @@ void Puzzle::Print(std::ostream &ostream)
         ostream << '+' << std::endl;
     };
 
-    const auto print_row = [&](const std::vector<FieldState> &row)
-    {
+    const auto print_row = [&](const std::vector<FieldState>& row) {
         ostream << "|";
 
         for (const auto v : row)
         {
             switch (v)
             {
-            case FieldState::Empty:
-                ostream << empty;
-                break;
+                case FieldState::Empty:
+                    ostream << empty;
+                    break;
 
-            case FieldState::Marked:
-                ostream << marked;
-                break;
+                case FieldState::Marked:
+                    ostream << marked;
+                    break;
 
-            case FieldState::Unknown:
-                ostream << unknown;
-                break;
+                case FieldState::Unknown:
+                    ostream << unknown;
+                    break;
             };
 
             ostream << (extended ? "|" : "");
@@ -156,8 +151,7 @@ bool Puzzle::Validate(std::string& issues)
     bool valid = true;
     std::stringstream issues_stream;
 
-    auto values_valid = [&](std::vector<int32_t> values, uint32_t grid_size)
-    {
+    auto values_valid = [&](std::vector<int32_t> values, uint32_t grid_size) {
         uint32_t s{ 0 };
         for (auto v : values)
         {
@@ -238,4 +232,3 @@ double Puzzle::GetCompletionRatio() const
 
     return double(filled_field_count) / (double(m_rows.size()) * double(m_columns.size()));
 }
-

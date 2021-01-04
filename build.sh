@@ -7,7 +7,7 @@ set -e
 : ${OUT_DIR_PATH:=.}
 
 function create_and_go_to_out_dir {
-    OUT_DIR_NAME=$OUT_DIR_PATH/out_projects_$PLATFORM
+    OUT_DIR_NAME=$OUT_DIR_PATH/out_$PLATFORM
 
     case $PLATFORM in
         linux-clang | ubuntu-2004-clang | linux-gcc | ubuntu-2004-gcc)

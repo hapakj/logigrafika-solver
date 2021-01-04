@@ -9,7 +9,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 	
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(COMPILER_FLAG_WARNINGS "-Wall" "-Wextra" "-Wformat=2" "-Wconversion")
+	set(COMPILER_FLAG_WARNINGS "-Wall" "-Wextra" "-Wformat=2" "-Wconversion" "-Wsign-compare")
 	
 	## disable too strict warnings
 	set(COMPILER_FLAG_WARNINGS ${COMPILER_FLAG_WARNINGS} "-Wno-double-promotion" "-Wno-switch-enum")

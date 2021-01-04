@@ -190,15 +190,15 @@ void PuzzleSolver::MarkerRule(const Puzzle::ValueView& values, Puzzle::GridView&
         };
 
 
-        size_t start_value_id{ 0 };
+        int32_t start_value_id{ 0 };
         {
-            size_t s = 0;
-            size_t i = 0;
+            int32_t s = 0;
+            int32_t i = 0;
 
-            for (; i < values.size(); i++)
+            for (; i < int32_t(values.size()); i++)
             {
                 s += values[i] + 1;
-                if (s > section_range.begin)
+                if (s > int32_t(section_range.begin))
                 {
                     break;
                 }
@@ -208,15 +208,15 @@ void PuzzleSolver::MarkerRule(const Puzzle::ValueView& values, Puzzle::GridView&
         }
 
 
-        size_t end_value_id{ 0 };
+        int32_t end_value_id{ 0 };
         {
-            size_t s = grid_view.size();
+            int32_t s = int32_t(grid_view.size());
             int32_t i = int32_t(values.size()) - 1;
 
             for (; i >= 0; i--)
             {
                 s -= values[i] + 1;
-                if (s < section_range.end)
+                if (s < int32_t(section_range.end))
                 {
                     break;
                 }
